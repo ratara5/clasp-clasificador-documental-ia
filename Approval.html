@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+  <base target="_top">
+
+  <style>
+
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 800px;
+      margin: 40px auto;
+      padding: 20px;
+    }
+
+    button {
+      padding: 12px 20px;
+      margin-right: 10px;
+      cursor: pointer;
+    }
+
+    .approve {
+      background: #188038;
+      color: white;
+      border: none;
+    }
+
+    .reject {
+      background: #d93025;
+      color: white;
+      border: none;
+    }
+
+  </style>
+
+</head>
+
+<body>
+
+  <h1>
+    Aprobación de política IA
+  </h1>
+
+  <p>
+    Versión:
+    <strong>
+      <?= version ?>
+    </strong>
+  </p>
+
+  <p>
+    Verifica primero el resultado del backtest
+    en la hoja RULE_VERSIONS.
+  </p>
+
+  <button
+    class="approve"
+    onclick="approve()">
+
+    APROBAR Y ACTIVAR
+
+  </button>
+
+  <button
+    class="reject"
+    onclick="reject()">
+
+    RECHAZAR
+
+  </button>
+
+
+  <p id="result"></p>
+
+
+  <script>
+
+    const version =
+      '<?= version ?>';
+
+
+    function approve() {
+
+      google.script.run
+        .withSuccessHandler(
+          function(result) {
+
+            document.getElementById(
+              'result'
+            ).innerText =
+              'Versión activada: ' +
+              result.version;
+          }
+        )
+        .withFailureHandler(
+          function(error) {
+
+            document.getElementById(
+              'result'
+            ).innerText =
+              'ERROR: ' +
+              error.message;
+          }
+        )
+        .webApprove(version);
+    }
+
+
+    function reject() {
+
+      google.script.run
+        .withSuccessHandler(
+          function(result) {
+
+            document.getElementById(
+              'result'
+            ).innerText =
+              'Versión rechazada: ' +
+              result.version;
+          }
+        )
+        .withFailureHandler(
+          function(error) {
+
+            document.getElementById(
+              'result'
+            ).innerText =
+              'ERROR: ' +
+              error.message;
+          }
+        )
+        .webReject(version);
+    }
+
+  </script>
+
+</body>
+
+</html>
