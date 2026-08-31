@@ -4,26 +4,28 @@
  * Configuración central de la aplicación
  * ============================================================
  */
+const month = new Date();
+month.setMonth(month.getMonth() - 1);
 
 const APP = {
-  CONTROL_SPREADSHEET_ID: 'PON_AQUI_ID_DE_GOOGLE_SHEET_CONTROL',
+  CONTROL_SPREADSHEET_ID: '16ldOAj3bF_UkPcFKAJjfO1q-c7G84UMW_hZx0C9rTA0',
 
   // Carpeta opcional donde se almacenarán los originales.
-  INPUT_FOLDER_ID: '',
+  INPUT_FOLDER_ID: '1q7lZv241kBnyuQ2m3_-eseU6KRnHBY9B',
 
   // Carpeta opcional para resultados.
-  OUTPUT_FOLDER_ID: '',
+  OUTPUT_FOLDER_ID: '1CMipp1fy-H2PEP1fl4ds6rCeAGyimKlv',
 
   // Gmail
-  GMAIL_QUERY: 'has:attachment filename:xls OR filename:xlsx',
+  GMAIL_QUERY: `has:attachment (filename:"INSUMO ${month}.xls" OR filename:"INSUMO ${month}.xlsx")`,
 
-  // Valor real esperado en columna D.
-  TARGET_D_VALUE: 'VALOR_ESPECIFICO',
+  // Valor real esperado en columna D. // EN REALIDAD DEBE SER EN LA COLUMNA O
+  TARGET_D_VALUE: 'Surogación',
 
   // Nombre de las columnas según encabezado.
   // Si el XLS no tiene esos encabezados, se utilizan D/T por posición.
-  D_HEADER_NAME: 'D',
-  T_HEADER_NAME: 'T',
+  D_HEADER_NAME: 'Culpabilidad', // EN REALIDAD DEBE SER EN LA COLUMA O
+  T_HEADER_NAME: 'DescripcionHehos',
 
   // Contactos que se reconocen.
   CONTACT_TYPES: [
@@ -36,9 +38,9 @@ const APP = {
 
   // Condición 2 inicial.
   BASE_KEYWORDS: [
-    'clave 1',
-    'clave 2',
-    'clave 3'
+    'girar',
+    'pegar',
+    'detrás'
   ],
 
   // Modelo Gemini.
