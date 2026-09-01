@@ -316,7 +316,15 @@ function construirRecordDesdeGolden(
     searchableText:
       Object.values(original)
         .map(v => String(v || ''))
-        .join(' | ')
+        .join(' | '),
+
+    // Columna T por posición (consistent with produccion).
+    searchableTextT:
+      String(
+        Object.values(original)[
+          APP.CONDICION1_DATOS_COLUMNA - 1
+        ] || ''
+      )
   };
 }
 

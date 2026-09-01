@@ -170,21 +170,21 @@ function evaluateCondition1(
   const dValue =
     getColumnValue(
       record,
-      APP.D_HEADER_NAME,
-      4
+      APP.O_HEADER_NAME,
+      APP.CONDICION1_COLUMNA
     );
 
   const tValue =
     getColumnValue(
       record,
       APP.T_HEADER_NAME,
-      20
+      APP.CONDICION1_DATOS_COLUMNA
     );
 
-  const dMatches =
+  const oMatches =
     normalizeText(dValue) ===
     normalizeText(
-      policy.condition1.targetDValue
+      policy.condition1.targetOValue
     );
 
   const contact =
@@ -193,17 +193,17 @@ function evaluateCondition1(
   return {
 
     pass:
-      dMatches && contact,
+      oMatches && contact,
 
     confidence:
-      dMatches && contact
+      oMatches && contact
         ? 1.0
         : 0.0,
 
     evidence: [
-      dMatches
-        ? 'D_MATCH'
-        : 'D_NO_MATCH',
+      oMatches
+        ? 'O_MATCH'
+        : 'O_NO_MATCH',
 
       contact
         ? 'CONTACT_IN_T'
@@ -224,8 +224,12 @@ function evaluateCondition2Deterministic(
   const text =
     record.searchableText;
 
+  // Los datos de contacto se evalúan sobre la columna T.
+  const textT =
+    record.searchableTextT;
+
   const contact =
-    containsContactInformation(text);
+    containsContactInformation(textT);
 
   const keywords =
     policy.condition2.keywords || [];
@@ -313,7 +317,7 @@ function buildResult(
   const contacts =
     extracted ||
     extractContactData(
-      record.searchableText
+      record.searchableTextT
     );
 
   return {

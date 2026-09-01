@@ -29,6 +29,7 @@ function procesarCorreosEntrantes() {
 
     const query =
       APP.GMAIL_QUERY;
+    Logger.log(`query: ${query}`)
 
     const threads =
       GmailApp.search(query, 0, 20);
@@ -39,12 +40,12 @@ function procesarCorreosEntrantes() {
       );
 
     for (const thread of threads) {
-
+      Logger.log(`thread: ${thread}`)
       const messages =
         thread.getMessages();
 
       for (const message of messages) {
-
+        Logger.log(`message: ${message}`)
         const attachments =
           message.getAttachments();
 
@@ -266,7 +267,7 @@ function actualizarExecution(
   const mapping = {
     status: 8,
     finishedAt: 7,
-    outputSpreadsheetId: 11,
+    outputSpreadsheetId: 10, // 11?
     error: 11
   };
 

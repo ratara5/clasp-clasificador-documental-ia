@@ -4,8 +4,11 @@
  * Configuración central de la aplicación
  * ============================================================
  */
-const month = new Date();
-month.setMonth(month.getMonth() - 1);
+//// TODO: Modificar por expresión regular
+const date = new Date();
+date.setMonth(date.getMonth() - 1);
+const month = date.toLocaleString('es-CO', { month: 'long' }).toUpperCase();
+
 
 const APP = {
   CONTROL_SPREADSHEET_ID: '16ldOAj3bF_UkPcFKAJjfO1q-c7G84UMW_hZx0C9rTA0',
@@ -16,16 +19,21 @@ const APP = {
   // Carpeta opcional para resultados.
   OUTPUT_FOLDER_ID: '1CMipp1fy-H2PEP1fl4ds6rCeAGyimKlv',
 
+  //// TODO: Validar que no se haya procesado ya
   // Gmail
   GMAIL_QUERY: `has:attachment (filename:"INSUMO ${month}.xls" OR filename:"INSUMO ${month}.xlsx")`,
 
   // Valor real esperado en columna D. // EN REALIDAD DEBE SER EN LA COLUMNA O
-  TARGET_D_VALUE: 'Surogación',
+  TARGET_O_VALUE: 'Subrogación',
 
   // Nombre de las columnas según encabezado.
   // Si el XLS no tiene esos encabezados, se utilizan D/T por posición.
-  D_HEADER_NAME: 'Culpabilidad', // EN REALIDAD DEBE SER EN LA COLUMA O
-  T_HEADER_NAME: 'DescripcionHehos',
+  O_HEADER_NAME: 'Culpabilidad', // EN REALIDAD DEBE SER EN LA COLUMA O
+  T_HEADER_NAME: 'DescripcionHechos',
+
+  // Posición 1-based de las columnas (fallback si no hay encabezado).
+  CONDICION1_COLUMNA: 15,      // O
+  CONDICION1_DATOS_COLUMNA: 20, // T
 
   // Contactos que se reconocen.
   CONTACT_TYPES: [
@@ -259,7 +267,7 @@ function asegurarPoliticaInicial(ss) {
     version: APP.INITIAL_POLICY_VERSION,
 
     condition1: {
-      targetDValue: APP.TARGET_D_VALUE,
+      targetOValue: APP.TARGET_O_VALUE,
       requireContactInT: true
     },
 

@@ -74,10 +74,27 @@ function extractEmails(text) {
 
 
 /**
- * Determina si un texto parece teléfono.
+ * Celular colombiano:
+ * - Empieza por 3 (rango móvil completo 3xx).
+ * - Total 10 dígitos.
  *
- * Esta versión es deliberadamente conservadora.
- * Ajustar según los datos reales.
+ * Formatos aceptados:
+ *   3001234567, 300 1234567, 300 123 4567, 300-123-4567
+ */
+const CELULAR_REGEX = /(?<!\d)3(?:[\d\s().\-]{0,2}\d){9}(?!\d)/g;
+
+
+/**
+ * Normaliza separadores de un posible celular
+ * conservando solo dígitos contiguos.
+ */
+function limpiarCelular(text) {
+  return String(text).replace(/[\s().\-]/g, '');
+}
+
+
+/**
+ * Determina si un valor parece un celular colombiano.
  */
 function isPhone(value) {
 
@@ -85,17 +102,18 @@ function isPhone(value) {
     return false;
   }
 
-  const digits = String(value).replace(/\D/g, '');
-
-  return (
-    digits.length >= 7 &&
-    digits.length <= 15
+  return /^3\d{9}$/.test(
+    limpiarCelular(value)
   );
 }
 
 
 /**
- * Extrae posibles teléfonos.
+ * Extrae todos los celulares colombianos de un texto.
+ *
+ * Opera sobre el texto original (sin limpiar) para respetar
+ * los límites de palabra, tolerando separadores (espacio,
+ * guion, punto) entre dígitos. Devuelve cadenas de 10 dígitos.
  */
 function extractPhones(text) {
 
@@ -103,11 +121,88 @@ function extractPhones(text) {
     return [];
   }
 
-  const matches = String(text).match(
-    /(?:\+?\d[\d\s().-]{6,}\d)/g
+  const found =
+    String(text).match(
+      CELULAR_REGEX
+    ) || [];
+
+  const resultados = found.map(
+    cadena => limpiarCelular(cadena)
   );
 
-  return matches || [];
+  return resultados.filter(
+    (value, index, self) =>
+      self.indexOf(value) === index &&
+      /^3\d{9}$/.test(value)
+  );
+}
+
+
+/**
+ * Extrae todos los nombres propios de un texto.
+ *
+ * Heurística: secuencias de 1+ tokens con inicial mayúscula,
+ * excluyendo emojis, números, emails, celulares y tokens
+ * que ya fueron consumidos como datos de contacto.
+ */
+function extractNames(text) {
+
+  if (!text) {
+    return [];
+  }
+
+  const filtrado = String(text)
+    .replace(/[.,;:()]/g, ' | ')
+    .replace(/[^\w\sÁÉÍÓÚÜÑáéíóúüñ|]/g, ' ')
+    .replace(/\d{2,}/g, ' ')
+    .replace(CELULAR_REGEX, ' ')
+    .replace(/\b\w+@\w+\.\w+\b/g, ' ');
+
+  const tokens =
+    filtrado.match(
+      /\b[A-ZÁÉÍÓÚÜÑ][a-záéíóúüñ]+(?:\s+[A-ZÁÉÍÓÚÜÑ][a-záéíóúüñ]*)*/g
+    ) || [];
+
+  const STOP = new Set([
+    'Descripcion',
+    'Hechos',
+    'Nombre',
+    'Correo',
+    'Celular',
+    'Telefono',
+    'Teléfono',
+    'Email',
+    'Mail',
+    'Cliente',
+    'Importante',
+    'Registro',
+    'Sr',
+    'Sra',
+    'Señor',
+    'Señora',
+    'Dr',
+    'Dra',
+    'Favor',
+    'Hola',
+    'Buenas',
+    'Buenos',
+    'Dias',
+    'Día',
+    'Tardes',
+    'Noches'
+  ]);
+
+  const nombres = tokens
+    .map(token => token.trim())
+    .filter(token => {
+      const words = token.split(/\s+/);
+      return words.length >= 1 && !STOP.has(words[0]);
+    });
+
+  return nombres.filter(
+    (value, index) =>
+      nombres.indexOf(value) === index
+  );
 }
 
 
@@ -138,7 +233,8 @@ function looksLikeName(value) {
 
 
 /**
- * Extrae nombre/correo/celular de un texto.
+ * Extrae todos los contactos (nombre/correo/celular)
+ * de un texto, uniendo múltiples coincidencias con ", ".
  */
 function extractContactData(text) {
 
@@ -155,13 +251,22 @@ function extractContactData(text) {
   const emails = extractEmails(text);
 
   if (emails.length) {
-    result.correo = emails[0];
+    result.correo =
+      emails.join(', ');
   }
 
   const phones = extractPhones(text);
 
   if (phones.length) {
-    result.celular = phones[0].trim();
+    result.celular =
+      phones.join(', ');
+  }
+
+  const names = extractNames(text);
+
+  if (names.length) {
+    result.nombre =
+      names.join(', ');
   }
 
   return result;
